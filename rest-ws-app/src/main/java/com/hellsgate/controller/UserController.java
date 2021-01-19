@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hellsgate.exceptionhandler.CustomException;
 import com.hellsgate.request.model.UpdateUserDetailsRequest;
 import com.hellsgate.request.model.UserDetailsRequest;
 import com.hellsgate.response.model.UserRest;
@@ -47,6 +48,12 @@ public class UserController {
 		{MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<UserRest> getUser(@PathVariable String userid) {
 		//return "getUser() method called. UserId - "+userid;
+		
+		/*String firstname = null;
+		int firstnamelength = firstname.length();*/
+		
+		if(true)
+			throw new CustomException(" In Custom Exception");
 		
 		if(mapstore.containsKey(userid)) {
 			return new ResponseEntity<>(mapstore.get(userid),HttpStatus.OK);
