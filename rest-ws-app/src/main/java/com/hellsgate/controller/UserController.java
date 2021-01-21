@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +25,18 @@ import com.hellsgate.exceptionhandler.CustomException;
 import com.hellsgate.request.model.UpdateUserDetailsRequest;
 import com.hellsgate.request.model.UserDetailsRequest;
 import com.hellsgate.response.model.UserRest;
+import com.hellsgate.service.UserService;
+import com.hellsgate.service.impl.UserServiceImpl;
 
 @RestController
 @RequestMapping("users") // http://localhost:8080/users
 public class UserController {
 
 	Map<String,UserRest> mapstore = new HashMap<String,UserRest>();
+	
+	@Autowired
+	UserService userservice;
+	
 	
 	
 	/* HANDLE HTTP GET REQUESTS - Passing parameters in URL & to keep parameters optional/default */
@@ -39,6 +46,8 @@ public class UserController {
 			@RequestParam(value = "sort",defaultValue = "desc",required = false) String sort) {
 		return "getUsers() method called with page - "+page+" & limit - "+limit+" & sort - "+sort;
 	}
+	
+	
 	
 	/* RETURNING A RESPONSE -  
 	 * 1. Returning Java Object as Response
@@ -69,6 +78,7 @@ public class UserController {
 		return new ResponseEntity<UserRest>(returnvalue,HttpStatus.OK);*/
 	}
 	
+	
 	/* HANDLE HTTP POST REQUEST - 
 	 * 1. Reading HTTP POST Request using RequestBody annotation
 	 * 2. Validating HTTP POST request body */
@@ -77,23 +87,14 @@ public class UserController {
 	public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequest userdetails) {
 		//return "createUser() method called";
 		
-		UserRest returnvalue = new UserRest();
+		// using new creates direct dependency on Service class
+		//UserRest userrest = new UserServiceImpl().createUser(userdetails);
 		
-		//returnvalue.setUserid(userdetails.getUserid());
-		returnvalue.setFirstname(userdetails.getFirstname());
-		returnvalue.setLastname(userdetails.getLastname());
-		returnvalue.setEmail(userdetails.getEmail());
+		// to avoid direct dependency as above, we use DI [Autowired annotation]
+		UserRest userrest = userservice.createUser(userdetails);
 		
-		//System.out.println("Response Body : "+returnvalue.toString());
+		return new ResponseEntity<UserRest>(userrest,HttpStatus.OK);
 		
-		String userid = UUID.randomUUID().toString();
-		returnvalue.setUserid(userid);
-		
-		if(mapstore.isEmpty()) {
-			mapstore.put(userid, returnvalue);
-		}
-		
-		return new ResponseEntity<UserRest>(returnvalue,HttpStatus.OK);
 	}
 	
 	
@@ -115,11 +116,14 @@ public class UserController {
 		return updateuser;
 	}
 	
+	
 	/* HANDLE HTTP DELETE REQUEST */
 	@DeleteMapping(path = "/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable String id) {
 		mapstore.remove(id);
 		return ResponseEntity.noContent().build();
 	}
+	
+	
 	
 }
