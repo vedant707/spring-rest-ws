@@ -1,8 +1,9 @@
 package com.hellsgate.service.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,12 +48,37 @@ public class UserServiceImpl implements  UserService {
 		String userid = utils.generateUserId();
 		returnvalue.setUserid(userid);
 		
-		if(mapstore.isEmpty()) {
+		if(!mapstore.containsKey(userid)) {
 			mapstore.put(userid, returnvalue);
 		}
 		
 		return returnvalue;
 		
+	}
+	
+	public Set<UserRest> getUsers(){
+		
+		Set<Map.Entry<String, UserRest>> userset = mapstore.entrySet();
+		Set<UserRest> usersetvalues = new HashSet<UserRest>();
+		
+		if(mapstore.isEmpty()) {
+			return null;
+		}else {
+			for(Map.Entry<String, UserRest> temp : userset) {
+				usersetvalues.add(temp.getValue());
+			}
+			return usersetvalues;
+		}
+	}
+	
+	@Override
+	public UserRest getUser(String userid) {
+		
+		if(mapstore.containsKey(userid)) {
+			return mapstore.get(userid);
+		}else {
+			return null;
+		}
 	}
 
 }
